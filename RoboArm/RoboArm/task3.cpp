@@ -1,4 +1,13 @@
-#include <GLUT/glut.h>
+//
+//Comment out for pc
+//#include <GLUT/glut.h>
+//=======================================================//
+//comment out for mac
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+//======================================================//
+//======================================================//
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
