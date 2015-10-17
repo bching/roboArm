@@ -25,6 +25,7 @@ float baserot, armrot = 0.0;
 //Radius from camera to point of focus 
 float cradius = 10.0f;
 float lastx, lasty;
+float RobotXRot = 90, RobotYRot = 0, ClawXRot = 0;
 
 GLUquadricObj *g_normalObject = NULL;
 void cleanUp_data(void);
@@ -75,11 +76,12 @@ GLvoid DrawRoboArm(){
 		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
 		glPushMatrix();//Open Base of arm
-			glScalef(1, .5, 1);
+			glScalef(1, .1, 1);
 			glutSolidCube(1.5);
 		glPopMatrix();//Close base of arm
 		glPushMatrix();//Open arm starting ant lower section
-			glTranslatef(0, .75, 0);
+			glTranslatef(0, 1, 0);
+			glRotatef(RobotYRot, 0, 1, 0);
 			glColor3d(0.9, 0.3, 0.5);
 			glPushMatrix();//scale center mast
 				glScalef(.3, 2, .3);
@@ -88,7 +90,7 @@ GLvoid DrawRoboArm(){
 			glPushMatrix();//Open joint
 				glColor3d(.1, .9, .1);
 				glTranslatef(0, 1, 0);
-				glRotatef(90, 1, 0, 0);
+				glRotatef(RobotXRot, 1, 0, 0);
 				glutSolidSphere(.3, 10, 10);
 				glPushMatrix();//Open upper arm
 					glTranslatef(0, .82, 0);
@@ -100,6 +102,7 @@ GLvoid DrawRoboArm(){
 					glPushMatrix();//Open joint for claw
 						glColor3d(.1, .0, .9);
 						glTranslatef(0, 1, 0);
+						glRotatef(ClawXRot, 1, 0, 0);
 						glutSolidSphere(.3, 10, 10);
 					glPopMatrix();//Close joint for claw
 				glPopMatrix();//Close upper Arm
@@ -169,16 +172,22 @@ void keyboard(unsigned char key, int x, int y) {
 
 	switch(key){
 		case 'a':
-			baserot++;
+			RobotYRot++;
+			if (RobotYRot >= 360)
+				RobotYRot = 0;
 			break;
 		case 'd':
-			baserot--;
+			RobotYRot--;
+			if (RobotYRot < 0)
+				RobotYRot = 360 - 1;
 			break;
 		case 'w':
-			armrot++;
+			if (RobotXRot > 0)
+				RobotXRot--;
 			break;
 		case 's':
-			armrot++;
+			if (RobotXRot < 160)
+				RobotXRot++;
 			break;
 	}
 
