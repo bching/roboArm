@@ -68,11 +68,42 @@ void drawPad(void){
 }
 
 GLvoid DrawRoboArm(){
-	glPushMatrix();
-		glColor3d(0.2, 0.8, 0.5);
+	glPushMatrix();//Open robot arm
+		glScaled(1.5, 1.5, 1.5);
+		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
-		glutSolidCube(1.5);
-	glPopMatrix();
+		glPushMatrix();//Open Base of arm
+			glScalef(1, .5, 1);
+			glutSolidCube(1.5);
+		glPopMatrix();//Close base of arm
+		glPushMatrix();//Open arm starting ant lower section
+			glTranslatef(0, .75, 0);
+			glColor3d(0.9, 0.3, 0.5);
+			glPushMatrix();//scale center mast
+				glScalef(.3, 2, .3);
+				glutSolidCube(1);
+			glPopMatrix();//close scaling
+			glPushMatrix();//Open joint
+				glColor3d(.1, .9, .1);
+				glTranslatef(0, 1, 0);
+				glRotatef(90, 1, 0, 0);
+				glutSolidSphere(.3, 10, 10);
+				glPushMatrix();//Open upper arm
+					glTranslatef(0, .82, 0);
+					glColor3d(0.9, 0.3, 0.0);
+					glPushMatrix();//scale center mast
+						glScalef(.3, 2, .3);
+						glutSolidCube(1);
+					glPopMatrix();//close scaling
+					glPushMatrix();//Open joint for claw
+						glColor3d(.1, .0, .9);
+						glTranslatef(0, 1, 0);
+						glutSolidSphere(.3, 10, 10);
+					glPopMatrix();//Close joint for claw
+				glPopMatrix();//Close upper Arm
+			glPopMatrix();//close joint
+		glPopMatrix();//Close arm
+	glPopMatrix();//Close robot arm
 }
 
 void display(void) {
@@ -82,7 +113,10 @@ void display(void) {
 
 	glTranslatef(0.0f, 0.0f, -cradius);
 	glRotatef(xrot, 1.0, 0.0, 0.0);
+	glRotatef(yrot, 0.0, 1.0, 0.0);
+	//glRotatef(xrot, 1.0, 0.0, 0.0);
 
+	DrawRoboArm();
 	drawBall();
 	drawPad();
 
