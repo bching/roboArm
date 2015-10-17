@@ -19,6 +19,7 @@
 #include <string>
 
 float xpos, ypos, zpos, xrot, yrot, angle = 0.0;
+float ball_xpos = 2.0; float ball_ypos = 0.0; float ball_zpos = 0.5;
 float baserot, armrot = 0.0;
 //Radius from camera to point of focus 
 float cradius = 10.0f;
@@ -47,7 +48,7 @@ void drawBall(void){
 	glColor3d(1, 0, 0);
 
 	glPushMatrix();
-		glTranslated(2.0, 0.0, 0.5);
+		glTranslated(ball_xpos, ball_ypos, ball_zpos);
 		glutSolidSphere(0.5, 50, 50);
 	glPopMatrix();
 
@@ -74,13 +75,13 @@ void display(void) {
 
 	glTranslatef(0.0f, 0.0f, -cradius);
 	glRotatef(xrot, 1.0, 0.0, 0.0);
+	glRotatef(yrot, 0.0, 1.0, 0.0);
 
 	drawBall();
 	drawPad();
 
 //	glRotatef(yrot, 0.0, 1.0, 0.0);
 //	glTranslated(-xpos, 0.0, -zpos);
-
 
 	glutSwapBuffers();
 }
@@ -102,17 +103,17 @@ void reshape(int w, int h) {
 
 float drawCollision(float color)
 {
-//	prevDistance = distance;
-//	distance = sqrt(( (xpos - xpos_spider) * (xpos - xpos_spider) )
-//			         + ((ypos - ypos_spider) * (ypos - ypos_spider))
-//			         + ((zpos - zpos_spider) * (zpos - zpos_spider)));
-//	difference = distance - (radius_horse + radius_spider);
-//	if(distance > prevDistance)
-//		return color-0.1;
-//	if(distance < prevDistance)
-//		return color+0.1;
-//	else
-//		return color;
+	prevDistance = distance;
+	distance = sqrt(( (ball_xpos - xpos_spider) * (ball_xpos - xpos_spider) )
+			         + ((ball_ypos - ypos_spider) * (ball_ypos - ypos_spider))
+			         + ((ball_zpos - zpos_spider) * (ball_zpos - zpos_spider)));
+	difference = distance - (radius_horse + radius_spider);
+	if(distance > prevDistance)
+		return color-0.1;
+	if(distance < prevDistance)
+		return color+0.1;
+	else
+		return color;
     return 0;
 }
 
