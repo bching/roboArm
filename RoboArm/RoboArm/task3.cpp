@@ -34,12 +34,21 @@ void enable(void){
 	glShadeModel(GL_SMOOTH);
 }
 
+GLvoid DrawRoboArm(){
+	glPushMatrix();
+		glColor3d(0.2, 0.8, 0.5);
+		glTranslatef(0, 0, 0);
+		glutSolidCube(1.5);
+	glPopMatrix();
+}
+
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	enable();
 	glLoadIdentity();
 
 	/** Make calls to draw objects in here **/
+	DrawRoboArm();
 
 
 	glutSwapBuffers();
@@ -97,7 +106,7 @@ int main(int argc, char **argv) {
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(640, 480);
 	glutInitWindowPosition(40, 40);
-	glutCreateWindow("");
+	glutCreateWindow("The Robot Arm!");
 
 	init();
 
@@ -109,12 +118,16 @@ int main(int argc, char **argv) {
 
 	glutPassiveMotionFunc(mouseMovement);
 
-	glClearColor(0.1, 0.1, 0.1, 1.0);
+	//environment background color
+	glClearColor(0.9, 0.2, 0.4, 1.0);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	//light and material in the environment
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
+
+	//gluLookAt(0, 1, -3, 0, 0, 0, 0, 1, 0);
 
 	glutMainLoop();
 	cleanUp_data();
