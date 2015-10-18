@@ -19,13 +19,17 @@
 #include <string>
 
 float xpos, ypos, zpos, xrot, yrot, angle = 0.0;
+<<<<<<< HEAD
 float ball_xpos = 2.0; float ball_ypos = 0.0; float ball_zpos = 0.5; float ball_radius = 0.5;
 float pad_xpos = 1.5; float pad_ypos = 0.5; float pad_zpos = 2.0;
 float baserot, armrot = 0.0;
+=======
+>>>>>>> refs/remotes/origin/master
 //Radius from camera to point of focus 
 float cradius = 10.0f;
 float lastx, lasty;
 float RobotXRot = 90, RobotYRot = 0, ClawXRot = 0;
+float RobotArmHeight = 2, RobotArmLength = 2, ModelScale = 1.5;
 
 GLUquadricObj *g_normalObject = NULL;
 void cleanUp_data(void);
@@ -72,36 +76,36 @@ void drawPad(void){
 
 GLvoid DrawRoboArm(){
 	glPushMatrix();//Open robot arm
-		glScaled(1.5, 1.5, 1.5);
+		glScaled(ModelScale, ModelScale, ModelScale);
 		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
 		glPushMatrix();//Open Base of arm
-			glScalef(1, .1, 1);
-			glutSolidCube(1.5);
+			glScalef(1.5, .1, 1.5);
+			glutSolidCube(1);
 		glPopMatrix();//Close base of arm
 		glPushMatrix();//Open arm starting ant lower section
-			glTranslatef(0, 1, 0);
+			glTranslatef(0, RobotArmHeight/2, 0);
 			glRotatef(RobotYRot, 0, 1, 0);
 			glColor3d(0.9, 0.3, 0.5);
 			glPushMatrix();//scale center mast
-				glScalef(.3, 2, .3);
+				glScalef(.3, RobotArmHeight, .3);
 				glutSolidCube(1);
 			glPopMatrix();//close scaling
 			glPushMatrix();//Open joint
 				glColor3d(.1, .9, .1);
-				glTranslatef(0, 1, 0);
+				glTranslatef(0, RobotArmHeight/2, 0);
 				glRotatef(RobotXRot, 1, 0, 0);
 				glutSolidSphere(.3, 10, 10);
 				glPushMatrix();//Open upper arm
-					glTranslatef(0, .82, 0);
+					glTranslatef(0, RobotArmLength/2, 0);
 					glColor3d(0.9, 0.3, 0.0);
 					glPushMatrix();//scale center mast
-						glScalef(.3, 2, .3);
+						glScalef(.3, RobotArmLength, .3);
 						glutSolidCube(1);
 					glPopMatrix();//close scaling
 					glPushMatrix();//Open joint for claw
 						glColor3d(.1, .0, .9);
-						glTranslatef(0, 1, 0);
+						glTranslatef(0, RobotArmLength/2, 0);
 						glRotatef(ClawXRot, 1, 0, 0);
 						glutSolidSphere(.3, 10, 10);
 					glPopMatrix();//Close joint for claw
@@ -119,10 +123,6 @@ void display(void) {
 	glTranslatef(0.0f, 0.0f, -cradius);
 	glRotatef(xrot, 1.0, 0.0, 0.0);
 	glRotatef(yrot, 0.0, 1.0, 0.0);
-<<<<<<< HEAD
-=======
-	//glRotatef(xrot, 1.0, 0.0, 0.0);
->>>>>>> refs/remotes/origin/master
 
 	DrawRoboArm();
 	drawBall();
@@ -235,8 +235,6 @@ int main(int argc, char **argv) {
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
-
-	//gluLookAt(0, 1, -3, 0, 0, 0, 0, 1, 0);
 
 	glutMainLoop();
 	cleanUp_data();
