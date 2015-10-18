@@ -25,8 +25,8 @@ float baserot, armrot = 0.0;
 //Radius from camera to point of focus 
 float cradius = 10.0f;
 float lastx, lasty;
-float RobotXRot = 90, RobotYRot = 0, clawDegrees = 0;
-float RobotArmHeight = 2, RobotArmLength = 2, ModelScale = 1.5;
+float robotXRot = 90, robotYRot = 0, clawDegrees = 0;
+float robotArmHeight = 2, robotArmLength = 2, modelScale = 1.5;
 
 GLUquadricObj *g_normalObject = NULL;
 void cleanUp_data(void);
@@ -74,7 +74,7 @@ void drawPad(void){
 
 GLvoid DrawRoboArm(){
 	glPushMatrix();//Open robot arm
-		glScaled(ModelScale, ModelScale, ModelScale);
+		glScaled(modelScale, modelScale, modelScale);
 		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
 		glPushMatrix();//Open Base of arm
@@ -82,29 +82,29 @@ GLvoid DrawRoboArm(){
 			glutSolidCube(1);
 		glPopMatrix();//Close base of arm
 		glPushMatrix();//Open arm starting ant lower section
-			glTranslatef(0, RobotArmHeight/2, 0);
-			glRotatef(RobotYRot, 0, 1, 0);
+			glTranslatef(0, robotArmHeight/2, 0);
+			glRotatef(robotYRot, 0, 1, 0);
 			glColor3d(0.9, 0.3, 0.5);
 			glPushMatrix();//scale center mast
-				glScalef(.3, RobotArmHeight, .3);
+				glScalef(.3, robotArmHeight, .3);
 				glutSolidCube(1);
 			glPopMatrix();//close scaling
 			glPushMatrix();//Open joint
 				glColor3d(.1, .9, .1);
-				glTranslatef(0, RobotArmHeight/2, 0);
-				glRotatef(RobotXRot, 1, 0, 0);
+				glTranslatef(0, robotArmHeight/2, 0);
+				glRotatef(robotXRot, 1, 0, 0);
 				glutSolidSphere(.3, 10, 10);
 				glPushMatrix();//Open upper arm
-					glTranslatef(0, RobotArmLength/2, 0);
+					glTranslatef(0, robotArmLength/2, 0);
 					glColor3d(0.9, 0.3, 0.0);
 					glPushMatrix();//scale center mast
-						glScalef(.3, RobotArmLength, .3);
+						glScalef(.3, robotArmLength, .3);
 						glutSolidCube(1);
 					glPopMatrix();//close scaling
 					glPushMatrix();//Open joint for claw
 						glColor3d(.1, .0, .9);
-						glTranslatef(0, RobotArmLength/2, 0);
-						glRotatef(-RobotXRot, 1, 0, 0);
+						glTranslatef(0, robotArmLength/2, 0);
+						glRotatef(-robotXRot, 1, 0, 0);
 						glutSolidSphere(.3, 10, 10);
 						glPushMatrix();//Open claw section
 							DrawClaw(90, .25, 0, 0);
@@ -191,22 +191,22 @@ void keyboard(unsigned char key, int x, int y) {
 
 	switch(key){
 		case 'a':
-			RobotYRot++;
-			if (RobotYRot >= 360)
-				RobotYRot = 0;
+			robotYRot++;
+			if (robotYRot >= 360)
+				robotYRot = 0;
 			break;
 		case 'd':
-			RobotYRot--;
-			if (RobotYRot < 0)
-				RobotYRot = 360 - 1;
+			robotYRot--;
+			if (robotYRot < 0)
+				robotYRot = 360 - 1;
 			break;
 		case 'w':
-			if (RobotXRot > 0)
-				RobotXRot--;
+			if (robotXRot > 0)
+				robotXRot--;
 			break;
 		case 's':
-			if (RobotXRot < 160)
-				RobotXRot++;
+			if (robotXRot < 160)
+				robotXRot++;
 			break;
 		case 'q':
 			if (clawDegrees < 56)
