@@ -2,7 +2,7 @@
 //Comment out for pc
 #include <GLUT/glut.h>
 #include <SDL2/SDL.h>
- Extension libraries for SDL2 to implement sound
+// Extension libraries for SDL2 to implement sound
 #include <SDL2_mixer/SDL_mixer.h>
 #include <SDL2_image/SDL_image.h>
 
@@ -19,12 +19,9 @@
 #include <string>
 
 float xpos, ypos, zpos, xrot, yrot, angle = 0.0;
-<<<<<<< HEAD
 float ball_xpos = 2.0; float ball_ypos = 0.0; float ball_zpos = 0.5; float ball_radius = 0.5;
 float pad_xpos = 1.5; float pad_ypos = 0.5; float pad_zpos = 2.0;
 float baserot, armrot = 0.0;
-=======
->>>>>>> refs/remotes/origin/master
 //Radius from camera to point of focus 
 float cradius = 10.0f;
 float lastx, lasty;
