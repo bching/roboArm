@@ -1,16 +1,16 @@
 //
 //Comment out for pc
-//#include <GLUT/glut.h>
-//#include <SDL2/SDL.h>
+#include <GLUT/glut.h>
+#include <SDL2/SDL.h>
 // Extension libraries for SDL2 to implement sound
-//#include <SDL2_mixer/SDL_mixer.h>
-//#include <SDL2_image/SDL_image.h>
+#include <SDL2_mixer/SDL_mixer.h>
+#include <SDL2_image/SDL_image.h>
 
 //=======================================================//
 //comment out for mac
-#include <GL/glut.h>
-#include <GL/glu.h>
-#include <GL/gl.h>
+//#include <GL/glut.h>
+//#include <GL/glu.h>
+//#include <GL/gl.h>
 //======================================================//
 //======================================================//
 #include <iostream>
@@ -19,20 +19,18 @@
 #include <string>
 
 float xpos, ypos, zpos, xrot, yrot, angle = 0.0;
-float ball_xpos = 2.0; float ball_ypos = 0.0; float ball_zpos = 0.5; float ball_radius = 0.5;
+
+float ball_xpos = 2.0; float ball_ypos = 0.5; float ball_zpos = 0.5; float ball_radius = 0.5;
 float pad_xpos = 1.5; float pad_ypos = 0.5; float pad_zpos = 2.0;
-float baserot, armrot = 0.0;
 //Radius from camera to point of focus 
 float cradius = 10.0f;
 float lastx, lasty;
-float RobotXRot = 90, RobotYRot = 0, clawDegrees = 0;
-float RobotArmHeight = 2, RobotArmLength = 2, ModelScale = 1.5;
+float RobotXRot = 90, RobotYRot = 0, ClawXRot = 0;
 
 GLUquadricObj *g_normalObject = NULL;
 void cleanUp_data(void);
 void enable(void);
 float drawCollision(float c);
-GLvoid DrawClaw(float degrees, float x, float y, float z);
 
 void init(void) {
 	
@@ -74,64 +72,43 @@ void drawPad(void){
 
 GLvoid DrawRoboArm(){
 	glPushMatrix();//Open robot arm
-		glScaled(ModelScale, ModelScale, ModelScale);
+		glScaled(1.5, 1.5, 1.5);
 		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
 		glPushMatrix();//Open Base of arm
-			glScalef(1.5, .1, 1.5);
-			glutSolidCube(1);
+			glScalef(1, .1, 1);
+			glutSolidCube(1.5);
 		glPopMatrix();//Close base of arm
 		glPushMatrix();//Open arm starting ant lower section
-			glTranslatef(0, RobotArmHeight/2, 0);
+			glTranslatef(0, 1, 0);
 			glRotatef(RobotYRot, 0, 1, 0);
 			glColor3d(0.9, 0.3, 0.5);
 			glPushMatrix();//scale center mast
-				glScalef(.3, RobotArmHeight, .3);
+				glScalef(.3, 2, .3);
 				glutSolidCube(1);
 			glPopMatrix();//close scaling
 			glPushMatrix();//Open joint
 				glColor3d(.1, .9, .1);
-				glTranslatef(0, RobotArmHeight/2, 0);
+				glTranslatef(0, 1, 0);
 				glRotatef(RobotXRot, 1, 0, 0);
 				glutSolidSphere(.3, 10, 10);
 				glPushMatrix();//Open upper arm
-					glTranslatef(0, RobotArmLength/2, 0);
+					glTranslatef(0, .82, 0);
 					glColor3d(0.9, 0.3, 0.0);
 					glPushMatrix();//scale center mast
-						glScalef(.3, RobotArmLength, .3);
+						glScalef(.3, 2, .3);
 						glutSolidCube(1);
 					glPopMatrix();//close scaling
 					glPushMatrix();//Open joint for claw
 						glColor3d(.1, .0, .9);
-						glTranslatef(0, RobotArmLength/2, 0);
-						glRotatef(-RobotXRot, 1, 0, 0);
+						glTranslatef(0, 1, 0);
+						glRotatef(ClawXRot, 1, 0, 0);
 						glutSolidSphere(.3, 10, 10);
-						glPushMatrix();//Open claw section
-							DrawClaw(90, .25, 0, 0);
-							DrawClaw(-90, -.25, 0, 0);
-							DrawClaw(0, 0, 0, .25);
-							DrawClaw(180, 0, 0, -.25);
-						glPopMatrix();//Close claw section
 					glPopMatrix();//Close joint for claw
 				glPopMatrix();//Close upper Arm
 			glPopMatrix();//close joint
 		glPopMatrix();//Close arm
 	glPopMatrix();//Close robot arm
-}
-
-GLvoid DrawClaw(float degrees, float x, float y, float z){
-	glPushMatrix();//Open claw
-		glColor3f(0, 1, 0);
-		glTranslatef(x, y, z);
-		glRotatef(degrees, 0, 1, 0);
-		glRotatef(clawDegrees, 1, 0, 0);
-		gluCylinder(g_normalObject, .05, .05, .5, 10, 10);
-		glPushMatrix();//Next segment
-			glTranslatef(0, 0, .5);
-			glRotatef(clawDegrees, 1, 0, 0);
-			gluCylinder(g_normalObject, .05, .05, .5, 10, 10);
-		glPopMatrix();//Close segment
-	glPopMatrix();//Close claw
 }
 
 void display(void) {
@@ -170,21 +147,18 @@ void reshape(int w, int h) {
 
 float drawCollision(float color)
 {
-	prevDistance = distance;
-	distance = sqrt(( (ball_xpos - xpos_spider) * (ball_xpos - xpos_spider) )
-			         + ((ball_ypos - ypos_spider) * (ball_ypos - ypos_spider))
-			         + ((ball_zpos - zpos_spider) * (ball_zpos - zpos_spider)));
-	difference = distance - (radius_horse + radius_spider);
+	float xrot_arm_rad = RobotXRot*M_PI/180;
 
-	//if(distance <= (ball_radius + 
 
-	if(distance > prevDistance)
-		return color-0.1;
-	if(distance < prevDistance)
-		return color+0.1;
-	else
-		return color;
-    return 0;
+	float distance;
+	distance = sqrt(( (ball_xpos - xpos_arm) * (ball_xpos - xpos_arm) )
+			         + ((ball_ypos - ypos_arm) * (ball_ypos - ypos_arm))
+			         + ((ball_zpos - zpos_arm) * (ball_zpos - zpos_arm)));
+	//float difference = distance - (radius_horse + radius_spider);
+
+//	if(distance <= (ball_radius + 
+
+	return 0;
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -207,14 +181,6 @@ void keyboard(unsigned char key, int x, int y) {
 		case 's':
 			if (RobotXRot < 160)
 				RobotXRot++;
-			break;
-		case 'q':
-			if (clawDegrees < 56)
-				clawDegrees++;
-			break;
-		case 'e':
-			if (clawDegrees > 0)
-				clawDegrees--;
 			break;
 	}
 
@@ -262,6 +228,8 @@ int main(int argc, char **argv) {
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
+
+	//gluLookAt(0, 1, -3, 0, 0, 0, 0, 1, 0);
 
 	glutMainLoop();
 	cleanUp_data();
