@@ -23,7 +23,7 @@ float xpos, ypos, zpos, xrot, yrot, angle = 0.0;
 float cradius = 10.0f;
 float lastx, lasty;
 float RobotXRot = 90, RobotYRot = 0, ClawXRot = 0;
-float RobotArmHeight = 2, RobotArmLength = 2;
+float RobotArmHeight = 2, RobotArmLength = 2, ModelScale = 1.5;
 
 GLUquadricObj *g_normalObject = NULL;
 void cleanUp_data(void);
@@ -70,7 +70,7 @@ void drawPad(void){
 
 GLvoid DrawRoboArm(){
 	glPushMatrix();//Open robot arm
-		glScaled(1.5, 1.5, 1.5);
+		glScaled(ModelScale, ModelScale, ModelScale);
 		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
 		glPushMatrix();//Open Base of arm
@@ -227,8 +227,6 @@ int main(int argc, char **argv) {
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
-
-	//gluLookAt(0, 1, -3, 0, 0, 0, 0, 1, 0);
 
 	glutMainLoop();
 	cleanUp_data();
