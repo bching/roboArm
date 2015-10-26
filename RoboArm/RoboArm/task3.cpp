@@ -5,6 +5,8 @@
 // Extension libraries for SDL2 to implement sound
 //#include <SDL2_mixer/SDL_mixer.h>
 //#include <SDL2_image/SDL_image.h>
+//SDL for Windows
+#include <SDL.h>
 
 //=======================================================//
 //comment out for mac
