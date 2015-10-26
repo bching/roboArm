@@ -28,11 +28,16 @@ float lastx, lasty;
 float robotXRot = 90, robotYRot = 0, clawDegrees = 0;
 float robotArmHeight = 2, robotArmLength = 2, modelScale = 1.5;
 
+struct Contact_Pt{
+	float x, y, z, r, v;
+};
+
 GLUquadricObj *g_normalObject = NULL;
 void cleanUp_data(void);
 void enable(void);
 float drawCollision(float c);
-GLvoid DrawClaw(float degrees, float x, float y, float z);
+GLvoid DrawClaw(float degrees, float x, float y, float z, int l);
+Contact_Pt contact_pts[4];
 
 void init(void) {
 	
@@ -46,6 +51,8 @@ void enable(void){
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 }
+
+
 
 void drawBall(void){
 	glPushAttrib(GL_CURRENT_BIT);
@@ -107,10 +114,10 @@ GLvoid DrawRoboArm(){
 						glRotatef(-robotXRot, 1, 0, 0);
 						glutSolidSphere(.3, 10, 10);
 						glPushMatrix();//Open claw section
-							DrawClaw(90, .25, 0, 0);
-							DrawClaw(-90, -.25, 0, 0);
-							DrawClaw(0, 0, 0, .25);
-							DrawClaw(180, 0, 0, -.25);
+							DrawClaw(90, .25, 0, 0, 0);
+							DrawClaw(-90, -.25, 0, 0, 1);
+							DrawClaw(0, 0, 0, .25, 2);
+							DrawClaw(180, 0, 0, -.25, 3);
 						glPopMatrix();//Close claw section
 					glPopMatrix();//Close joint for claw
 				glPopMatrix();//Close upper Arm
@@ -119,7 +126,7 @@ GLvoid DrawRoboArm(){
 	glPopMatrix();//Close robot arm
 }
 
-GLvoid DrawClaw(float degrees, float x, float y, float z){
+GLvoid DrawClaw(float degrees, float x, float y, float z, int l){
 	glPushMatrix();//Open claw
 		glColor3f(0, 1, 0);
 		glTranslatef(x, y, z);
@@ -130,6 +137,12 @@ GLvoid DrawClaw(float degrees, float x, float y, float z){
 			glTranslatef(0, 0, .5);
 			glRotatef(clawDegrees, 1, 0, 0);
 			gluCylinder(g_normalObject, .05, .05, .5, 10, 10);
+			glPushMatrix();//Draw collision point
+				//glTranslatef(contact_pts[l].x, contact_pts[l].y, contact_pts[l].z);
+				glTranslatef(0, 0, 0.5);
+				glColor3f(1, 0, 0);
+				glutSolidSphere(contact_pts[l].r, 30, 30);
+			glPopMatrix();//Close collision point
 		glPopMatrix();//Close segment
 	glPopMatrix();//Close claw
 }
@@ -168,24 +181,24 @@ void reshape(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-float drawCollision(float color)
-{
-	prevDistance = distance;
-	distance = sqrt(( (ball_xpos - xpos_spider) * (ball_xpos - xpos_spider) )
-			         + ((ball_ypos - ypos_spider) * (ball_ypos - ypos_spider))
-			         + ((ball_zpos - zpos_spider) * (ball_zpos - zpos_spider)));
-	difference = distance - (radius_horse + radius_spider);
-
-	//if(distance <= (ball_radius + 
-
-	if(distance > prevDistance)
-		return color-0.1;
-	if(distance < prevDistance)
-		return color+0.1;
-	else
-		return color;
-    return 0;
-}
+//float drawCollision(float color)
+//{
+//	prevDistance = distance;
+//	distance = sqrt(( (ball_xpos - xpos_spider) * (ball_xpos - xpos_spider) )
+//			         + ((ball_ypos - ypos_spider) * (ball_ypos - ypos_spider))
+//			         + ((ball_zpos - zpos_spider) * (ball_zpos - zpos_spider)));
+//	difference = distance - (radius_horse + radius_spider);
+//
+//	//if(distance <= (ball_radius + 
+//
+//	if(distance > prevDistance)
+//		return color-0.1;
+//	if(distance < prevDistance)
+//		return color+0.1;
+//	else
+//		return color;
+//    return 0;
+//}
 
 void keyboard(unsigned char key, int x, int y) {
 
@@ -238,6 +251,14 @@ void cleanUp_data(void){
 }
 
 int main(int argc, char **argv) {
+
+	for (int i = 0; i < sizeof(contact_pts); i++){
+		contact_pts[i].x = 0;
+		contact_pts[i].y = 0;
+		contact_pts[i].z = 0;
+		contact_pts[i].r = 0.1;
+
+	}
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(640, 480);
