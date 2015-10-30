@@ -1,17 +1,12 @@
-//Comment out for pc
-//#include <GLUT/glut.h>
-//#include <SDL2/SDL.h>
+#include <GLUT/glut.h>
+#include <SDL2/SDL.h>
 // Extension libraries for SDL2 to implement sound
-//#include <SDL2_mixer/SDL_mixer.h>
-//#include <SDL2_image/SDL_image.h>
-//SDL for Windows
-#include <SDL.h>
+#include <SDL2_mixer/SDL_mixer.h>
+#include <SDL2_image/SDL_image.h>
 
-//=======================================================//
-//comment out for mac
-#include <GL/glut.h>
-#include <GL/glu.h>
-#include <GL/gl.h>
+//#include <GL/glut.h>
+//#include <GL/glu.h>
+//#include <GL/gl.h>
 //======================================================//
 //======================================================//
 #include <iostream>
@@ -68,7 +63,7 @@ Contact_Pt contact_pts[4];
 
 GLUquadricObj *g_normalObject = NULL;
 
-	
+
 void init(void) {
 	g_normalObject = gluNewQuadric();
 }
