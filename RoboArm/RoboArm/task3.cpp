@@ -5,7 +5,7 @@
 //#include <SDL2_mixer/SDL_mixer.h>
 //#include <SDL2_image/SDL_image.h>
 //SDL for Windows
-#include <SDL.h>
+//#include <SDL.h>
 
 //=======================================================//
 //comment out for mac
@@ -26,14 +26,14 @@ void enable(void);
 void drawCollision();
 void sphereSphereCollision();
 bool collidingBelow();
-void collisionResponse(float v);
+void collisionResponse(int index);
 float doGravity(float y);
 void updateVariables();
 void updateCamera();
-GLvoid DrawClaw(float degrees, float x, float y, float z, int l);
+void drawClaw(float degrees, float x, float y, float z, int l);
 
 //***** CAMERA STUFF *****//
-Camera camera = Camera(0.0, 0.3, 5.0,
+Camera camera = Camera(0.0, 1.0, 10.0,
 		0.0, 0.0, 0.0);
 bool camera_left = false;
 bool camera_right = false;
@@ -53,9 +53,10 @@ float baserot, armrot = 0.0;
 
 //******ROBOT ARM STUFF ***//
 bool claw_close = false; bool claw_open = false;
-float claw_velocity = 0.01;
+float claw_velocity = 0.5;
 
 bool arm_left = false; bool arm_right = false;
+bool arm_up = false; bool arm_down = false;
 float robotXRot = 90, robotYRot = 0, clawDegrees = 0;
 float robotArmHeight = 2, robotArmLength = 2, modelScale = 1.5;
 
@@ -64,7 +65,7 @@ float robotArmHeight = 2, robotArmLength = 2, modelScale = 1.5;
 struct contact_sphere{
 	float x, y, z, r, v;
 };
-Contact_Pt contact_pts[4];
+contact_sphere contact_pts[4];
 
 GLUquadricObj *g_normalObject = NULL;
 
@@ -97,7 +98,7 @@ void drawBall(void){
 	glColor3d(1, 0, 0);
 
 	glPushMatrix();
-		glTranslated(ball_xpos, ball_ypos, ball_zpos);
+		glTranslated(ball_pos[0], ball_pos[1], ball_pos[2]);
 		glutSolidSphere(ball_radius, 50, 50);
 	glPopMatrix();
 }
@@ -146,10 +147,10 @@ void drawRoboArm(){
 						glRotatef(-robotXRot, 1, 0, 0);
 						glutSolidSphere(.3, 10, 10);
 						glPushMatrix();//Open claw section
-							DrawClaw(90, .25, 0, 0, 0);
-							DrawClaw(-90, -.25, 0, 0, 1);
-							DrawClaw(0, 0, 0, .25, 2);
-							DrawClaw(180, 0, 0, -.25, 3);
+							drawClaw(90, .25, 0, 0, 0);
+							drawClaw(-90, -.25, 0, 0, 1);
+							drawClaw(0, 0, 0, .25, 2);
+							drawClaw(180, 0, 0, -.25, 3);
 						glPopMatrix();//Close claw section
 					glPopMatrix();//Close joint for claw
 				glPopMatrix();//Close upper Arm
@@ -187,19 +188,23 @@ float doGravity(float y_pos){
 }
 
 void display(void) {
-	if(sphereSphereCollision()){
-		collisionResponse(o_velocity);
-	}
+//	if(sphereSphereCollision()){
+//		collisionResponse(o_velocity);
+//	}
+
+	sphereSphereCollision();
+	updateCamera();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	enable();
-	//glLoadIdentity(); //maybe dont need this
+
+	updateVariables();
 
 	glPushAttrib(GL_CURRENT_BIT);
 
-	DrawRoboArm();
+	drawRoboArm();
 	drawBall();
-	drawPad();
+//	drawPad();
 
 	drawGround();
 
@@ -228,15 +233,19 @@ void sphereSphereCollision(){
 								 + ((contact_pts[i].y - ball_pos[1]) * (contact_pts[i].y - ball_pos[1]))
 								 + ((contact_pts[i].z - ball_pos[2]) * (contact_pts[i].z - ball_pos[2])));
 		
-		float sumRadius = contact_pts[i].r + o_radius;	
-		
-		if(distance <= sumRadius)
-			collisionResponse()
+		float sumRadius = contact_pts[i].r + ball_radius;	
+		std::cout << "distance"<< distance << std::endl;
+		std::cout << "sumRadius"<< sumRadius<< std::endl;
+
+		if(distance <= sumRadius){
+		//	std::cout << "collision here" << std::endl;
+			collisionResponse(i);
+		}
 	}
 }
 
 //VELOCITIES ARE ALL THE ANGLE CHANGE OF CLAW
-void collisionResponse(){
+void collisionResponse(int index){
 	/* These are points of collision but are not using them currently
 	float x_coll = (o_pos[0]*ball_radius + ball_pos[0] * o_radius) / 
 		(o_radius + ball_radius);
@@ -245,69 +254,81 @@ void collisionResponse(){
 	float z_coll = (o_pos[2]*ball_radius + ball_pos[2] * o_radius) / 
 		(o_radius + ball_radius);
 		*/
-	for(int i = 0; i < 4; i++){
-		float y_coll = (contact_pts[i]*ball_radius + ball_pos[1] * o_radius) / 
-			(contact_pts[i].r + ball_radius);
+	//for(int i = 0; i < 4; i++){
+	float y_coll = (contact_pts[index].y * ball_radius 
+			+ ball_pos[1] * contact_pts[index].r) / (contact_pts[index].r + ball_radius);
 
-		float contact_vel_x = (claw_velocity * (contact_pts[i].r - ball_radius))
-			+ (2*ball_radius*ball_vel_initial)
-			/ (contact_pts[i].r + ball_radius);
-		float contact_vel_y = (claw_velocity * (contact_pts[i].r - ball_radius))
-			+ (2*ball_radius*ball_vel_initial)
-			/ (contact_pts[i].r + ball_radius);
-		float contact_vel_z = (claw_velocity * (contact_pts[i].r - ball_radius))
-			+ (2*ball_radius*ball_vel_initial)
-			/ (contact_pts[i].r + ball_radius);
-		
-		float ball_vel_x = (ball_vel_initial * (ball_radius - contact_pots[i].r))
-			+ (2*o_radius*o_velocity)
-			/ (contact_pts[i].r + ball_radius);
-		float ball_vel_y = (ball_vel_initial* (ball_radius - contact_pots[i].r))
-			+ (2*contact_pts[i].r*claw_velocity)
-			/ (contact_pts[i].r + ball_radius);
-		float ball_vel_z = (ball_vel_initial * (ball_radius - contact_pots[i].r))
-			+ (2*contact_pts[i].r*claw_velocity)
-			/ (contact_pts[i].r + ball_radius);
+	float contact_vel_x = (claw_velocity * (contact_pts[index].r - ball_radius))
+		+ (2*ball_radius*ball_vel_initial)
+		/ (contact_pts[index].r + ball_radius);
+	float contact_vel_y = (claw_velocity * (contact_pts[index].r - ball_radius))
+		+ (2*ball_radius*ball_vel_initial)
+		/ (contact_pts[index].r + ball_radius);
+	float contact_vel_z = (claw_velocity * (contact_pts[index].r - ball_radius))
+		+ (2*ball_radius*ball_vel_initial)
+		/ (contact_pts[index].r + ball_radius);
+	
+	float ball_vel_x = (ball_vel_initial * (ball_radius - contact_pts[index].r))
+		+ (2*contact_pts[index].r*contact_vel_x)
+		/ (contact_pts[index].r + ball_radius);
+	float ball_vel_y = (ball_vel_initial* (ball_radius - contact_pts[index].r))
+		+ (2*contact_pts[index].r*contact_vel_y)
+		/ (contact_pts[index].r + ball_radius);
+	float ball_vel_z = (ball_vel_initial * (ball_radius - contact_pts[index].r))
+		+ (2*contact_pts[index].r*contact_vel_z)
+		/ (contact_pts[index].r + ball_radius);
 
-		//WE ARE NOT MOVING THE CONTACT SPHERES ON CONTACT
-		contact_pts[i] = contact_pts[i].x + contact_vel_x;
-		contact_pts[i] = contact_pts[i].y + contact_vel_y;
-		contact_pts[i] = contact_pts[i].z + contact_vel_z;
+	//WE ARE NOT MOVING THE CONTACT SPHERES ON CONTACT
+	contact_pts[index].x = contact_pts[index].x + contact_vel_x;
+	contact_pts[index].y = contact_pts[index].y + contact_vel_y;
+	contact_pts[index].z = contact_pts[index].z + contact_vel_z;
 
-		ball_pos[0] = ball_pos[0] + ball_vel_x;
-		if(y_coll < 0.35 && ball_pos[1] > 0){
-			ball_pos[1] = doGravity(ball_pos[1]);
-		} 
-		ball_pos[2] = ball_pos[2] + ball_vel_z;
-	}
+		std::cout << "translating here" << std::endl;
+	ball_pos[0] = ball_pos[0] + ball_vel_x;
+	if(y_coll < 0.35 && ball_pos[1] > 0){
+		ball_pos[1] = doGravity(ball_pos[1]);
+	} 
+	ball_pos[2] = ball_pos[2] + ball_vel_z;
+//	}
 }
 
 void keyboard(unsigned char key, int x, int y) {
 	switch(key){
 		case 'a':
-			robotYRot++;
-			if (robotYRot >= 360)
-				robotYRot = 0;
+			if(arm_left == false && arm_right != true)
+				arm_left = true;
+			else
+				arm_left = false;
 			break;
 		case 'd':
-			robotYRot--;
-			if (robotYRot < 0)
-				robotYRot = 360 - 1;
+			if(arm_right == false && arm_left != true)
+				arm_right = true;
+			else
+				arm_right = false;
 			break;
 		case 'w':
-			if (robotXRot > 0)
-				robotXRot--;
+			if(arm_up == false && arm_down != true)
+				arm_up = true;
+			else
+				arm_up = false;
 			break;
 		case 's':
-			if (robotXRot < 160)
-				robotXRot++;
-			break;case 'q':
+			if(arm_down == false && arm_up != true)
+				arm_down = true;
+			else
+				arm_down = false;
+			break;
+		case 'q':
 			if(claw_close == false && claw_open != true)
 				claw_close = true;
+			else
+				claw_close = false;
 			break;
 		case 'e':
 			if(claw_open == false && claw_close != true)
 				claw_open = true;
+			else
+				claw_open = false;
 			break;
 		//**** CAMERA CONTROLS ***//
 		case 'o':
@@ -331,23 +352,16 @@ void keyboard(unsigned char key, int x, int y) {
 void updateVariables(void){
 
 	//USE THESE FOR THE CONTACT SPHERE STRUCT
-	if(xpiv_move == true)
-		o_pos[0] += o_velocity;
-	if(xneg_move == true)
-		o_pos[0] -= o_velocity;
-	if(ypiv_move == true)
-		o_pos[1] += o_velocity;
-	if(yneg_move == true)
-		o_pos[1] -= o_velocity;
-	if(zpiv_move == true)
-		o_pos[2] += o_velocity;
-	if(zneg_move == true)
-		o_pos[2] -= o_velocity;
+
+	if(arm_up == true && robotXRot > 0)
+		robotXRot += 0.5;
+	if(arm_down == true && robotXRot < 160)
+		robotXRot -= 0.5;
 
 	if(arm_left == true)
-		robotXRot += 0.1;
+		robotYRot += 0.5;
 	if(arm_right == true)
-		robotXRot -= 0.1;
+		robotYRot -= 0.5;
 
 	if(claw_open == true && clawDegrees < 56)
 		clawDegrees += claw_velocity;
@@ -386,7 +400,7 @@ int main(int argc, char **argv) {
 		contact_pts[i].y = 0;
 		contact_pts[i].z = 0;
 		contact_pts[i].r = 0.1;
-		contace_pts[i].v = 0.0;
+		contact_pts[i].v = claw_velocity;
 	}
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
