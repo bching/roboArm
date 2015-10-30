@@ -25,8 +25,8 @@ void collisionResponse(float v);
 float doGravity(float y);
 void updateVariables();
 void updateCamera();
-
 GLvoid DrawClaw(float degrees, float x, float y, float z, int l);
+
 //***** CAMERA STUFF *****//
 Camera camera = Camera(0.0, 0.3, 5.0,
 		0.0, 0.0, 0.0);
