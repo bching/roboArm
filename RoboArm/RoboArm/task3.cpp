@@ -5,7 +5,7 @@
 //#include <SDL2_mixer/SDL_mixer.h>
 //#include <SDL2_image/SDL_image.h>
 //SDL for Windows
-//#include <SDL.h>
+#include <SDL.h>
 
 //=======================================================//
 //comment out for mac
@@ -16,7 +16,7 @@
 //======================================================//
 #include <iostream>
 #include <stdlib.h>
-#include <math.h>
+//#include <math.h>
 #include <string>
 
 #include "cam.h"
@@ -34,7 +34,8 @@ void drawClaw(float degrees, float x, float y, float z, int l);
 
 //***** CAMERA STUFF *****//
 Camera camera = Camera(0.0, 1.0, 10.0,
-		0.0, 0.0, 0.0);
+	0.0, 0.0, 0.0);
+//const float Camera::up[3] = { 0.0, 1.0, 0.0 };
 bool camera_left = false;
 bool camera_right = false;
 //**** GRAVITY STUFF ***//
@@ -354,9 +355,9 @@ void updateVariables(void){
 	//USE THESE FOR THE CONTACT SPHERE STRUCT
 
 	if(arm_up == true && robotXRot > 0)
-		robotXRot += 0.5;
-	if(arm_down == true && robotXRot < 160)
 		robotXRot -= 0.5;
+	if(arm_down == true && robotXRot < 160)
+		robotXRot += 0.5;
 
 	if(arm_left == true)
 		robotYRot += 0.5;
@@ -380,12 +381,12 @@ void updateVariables(void){
 }
 
 void updateCamera(){
-	float camera_x = sin(camera.angle) * camera.radius;
-	float camera_y = cos(camera.angle) * camera.radius;
+	float camera_x = sin(camera.angle) * camera.getRadius();
+	float camera_y = cos(camera.angle) * camera.getRadius();
 	glLoadIdentity();
 	gluLookAt(camera_x, 2.0, camera_y,
 		camera.camera_target[0], camera.camera_target[1], camera.camera_target[2],
-		camera.up[0], camera.up[1], camera.up[2]);
+		0.0, 1.0, 0.0);
 }
 
 void cleanUp_data(void){
