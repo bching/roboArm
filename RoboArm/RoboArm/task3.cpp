@@ -296,26 +296,38 @@ void collisionResponse(int index){
 void keyboard(unsigned char key, int x, int y) {
 	switch(key){
 		case 'a':
-			if(arm_left == false && arm_right != true)
+			if (arm_left == false){
+				if (arm_right)
+					arm_right = false;
 				arm_left = true;
+			}
 			else
 				arm_left = false;
 			break;
 		case 'd':
-			if(arm_right == false && arm_left != true)
+			if (arm_right == false){
+				if (arm_left)
+					arm_left = false;
 				arm_right = true;
+			}
 			else
 				arm_right = false;
 			break;
 		case 'w':
-			if(arm_up == false && arm_down != true)
+			if (!arm_up){
+				if (arm_down)
+					arm_down = false;
 				arm_up = true;
+			}
 			else
 				arm_up = false;
 			break;
 		case 's':
-			if(arm_down == false && arm_up != true)
+			if (!arm_down){
+				if (arm_up)
+					arm_up = false;
 				arm_down = true;
+			}
 			else
 				arm_down = false;
 			break;
@@ -394,6 +406,29 @@ void cleanUp_data(void){
 		gluDeleteQuadric(g_normalObject);
 }
 
+////////////////////////////////////////////////////////////////
+// Vsync for Windows
+////////////////////////////////////////////////////////////////
+void setVSync(bool sync)
+{
+	typedef BOOL(APIENTRY *PFNWGLSWAPINTERVALPROC)(int);
+	PFNWGLSWAPINTERVALPROC wglSwapIntervalEXT = 0;
+
+	const char *extensions = (char*)glGetString(GL_EXTENSIONS);
+
+	if (strstr(extensions, "WGL_EXT_swap_control") == 0)
+	{
+		return;
+	}
+	else
+	{
+		wglSwapIntervalEXT = (PFNWGLSWAPINTERVALPROC)wglGetProcAddress("wglSwapIntervalEXT");
+
+		if (wglSwapIntervalEXT)
+			wglSwapIntervalEXT(sync);
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 
 	for (int i = 0; i < sizeof(contact_pts); i++){
@@ -410,6 +445,11 @@ int main(int argc, char **argv) {
 	glutCreateWindow("The Robot Arm!");
 
 	init();
+	//////////////////////
+	//Comment out for Mac/
+	setVSync(1);		//
+	//////////////////////
+	//////////////////////
 
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
