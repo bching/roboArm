@@ -54,12 +54,13 @@ float baserot, armrot = 0.0;
 
 //******ROBOT ARM STUFF ***//
 bool claw_close = false; bool claw_open = false;
-float claw_velocity = 0.5;
+float claw_velocity = 0.01;
 
 bool arm_left = false; bool arm_right = false;
 bool arm_up = false; bool arm_down = false;
-float robotXRot = 90, robotYRot = 0, clawDegrees = 0;
-float robotArmHeight = 2, robotArmLength = 2, modelScale = 1.5;
+float robotXRot = 90, robotYRot = 0, clawDegrees = 0.25;
+float robotArmHeight = 2, robotArmLength = 2, modelScale = 1;
+float cableLength = 1.0;
 
 //*****COLLISION SPHERES ****//
 //THE INCREMENTATION OF clawDegrees is the velocity
@@ -115,7 +116,7 @@ void drawPad(void){
 
 void drawRoboArm(){
 	glPushMatrix();//Open robot arm
-		glScaled(modelScale, modelScale, modelScale);
+		//glScaled(modelScale, modelScale, modelScale);
 		glColor3d(0.2, 0.3, 0.5);
 		glTranslatef(0, 0, 0);
 		glPushMatrix();//Open Base of arm
@@ -123,37 +124,45 @@ void drawRoboArm(){
 			glutSolidCube(1);
 		glPopMatrix();//Close base of arm
 		glPushMatrix();//Open arm starting ant lower section
-			glTranslatef(0, robotArmHeight/2, 0);
+			//glTranslatef(0, robotArmHeight/2, 0);
 			glRotatef(robotYRot, 0, 1, 0);
 			glColor3d(0.9, 0.3, 0.5);
 			glPushMatrix();//scale center mast
-				glScalef(.3, robotArmHeight, .3);
-				glutSolidCube(1);
+				//glScalef(.3, robotArmHeight, .3);
+				glRotatef(-90, 1, 0, 0);
+				gluCylinder(g_normalObject, 0.15, 0.15, robotArmHeight, 10, 10);
 			glPopMatrix();//close scaling
 			glPushMatrix();//Open joint
 				glColor3d(.1, .9, .1);
-				glTranslatef(0, robotArmHeight/2, 0);
-				glRotatef(robotXRot, 1, 0, 0);
+				glTranslatef(0, robotArmHeight, 0);
+				//glRotatef(90, 1, 0, 0);
 				glutSolidSphere(.3, 10, 10);
 				glPushMatrix();//Open upper arm
-					glTranslatef(0, robotArmLength/2, 0);
+					//glTranslatef(0, robotArmLength/2, 0);
 					glColor3d(0.9, 0.3, 0.0);
-					glPushMatrix();//scale center mast
-						glScalef(.3, robotArmLength, .3);
-						glutSolidCube(1);
-					glPopMatrix();//close scaling
-					glPushMatrix();//Open joint for claw
-						glColor3d(.1, .0, .9);
-						glTranslatef(0, robotArmLength/2, 0);
-						glRotatef(-robotXRot, 1, 0, 0);
-						glutSolidSphere(.3, 10, 10);
-						glPushMatrix();//Open claw section
-							drawClaw(90, .25, 0, 0, 0);
-							drawClaw(-90, -.25, 0, 0, 1);
-							drawClaw(0, 0, 0, .25, 2);
-							drawClaw(180, 0, 0, -.25, 3);
-						glPopMatrix();//Close claw section
-					glPopMatrix();//Close joint for claw
+					//glScalef(.3, robotArmLength, .3);
+					gluCylinder(g_normalObject, 0.15, 0.15, robotArmHeight, 10, 10);
+					glPushMatrix();//Open joint and cable for claw
+					glPushMatrix();
+						glTranslatef(0, 0, robotArmLength);
+						glutSolidSphere(.17, 10, 10);
+					glPopMatrix();
+						glTranslatef(0, 0, robotArmLength);
+						glRotatef(90, 1, 0, 0);
+						gluCylinder(g_normalObject, .05, .05, cableLength, 10, 10);
+						glPushMatrix();//Open joint for claw
+							glColor3d(.1, .0, .9);
+							glTranslatef(0, 0, cableLength);
+							glRotatef(-90, 1, 0, 0);
+							glutSolidSphere(.3, 10, 10);
+							glPushMatrix();//Open claw section
+								drawClaw(90, .25, 0, 0, 0);
+								drawClaw(-90, -.25, 0, 0, 1);
+								drawClaw(0, 0, 0, .25, 2);
+								drawClaw(180, 0, 0, -.25, 3);
+							glPopMatrix();//Close claw section
+						glPopMatrix();//Close joint for claw
+					glPopMatrix();//Close Joint and Cable for claw
 				glPopMatrix();//Close upper Arm
 			glPopMatrix();//close joint
 		glPopMatrix();//Close arm
@@ -165,18 +174,22 @@ void drawClaw(float degrees, float x, float y, float z, int l){
 		glColor3f(0, 1, 0);
 		glTranslatef(x, y, z);
 		glRotatef(degrees, 0, 1, 0);
-		glRotatef(clawDegrees, 1, 0, 0);
-		gluCylinder(g_normalObject, .05, .05, .5, 10, 10);
+		//glRotatef(clawDegrees, 1, 0, 0);
+		gluCylinder(g_normalObject, .05, .05, clawDegrees, 10, 10);
 		glPushMatrix();//Next segment
-			glTranslatef(0, 0, .5);
-			glRotatef(clawDegrees, 1, 0, 0);
-			gluCylinder(g_normalObject, .05, .05, .5, 10, 10);
-			glPushMatrix();//Draw collision point
-				//glTranslatef(contact_pts[l].x, contact_pts[l].y, contact_pts[l].z);
-				glTranslatef(0, 0, 0.5);
-				glColor3f(1, 0, 0);
-				glutSolidSphere(contact_pts[l].r, 30, 30);
-			glPopMatrix();//Close collision point
+			glTranslatef(0, 0, clawDegrees);
+			glRotatef(90, 1, 0, 0);
+			gluCylinder(g_normalObject, .05, .05, 1, 10, 10);
+			glPushMatrix();//The part of the arm going back into the center
+				glTranslatef(0, 0, 1);
+				glRotatef(90, 1, 0, 0);
+				gluCylinder(g_normalObject, 0.05, 0.05, .25, 10, 10);
+				glPushMatrix();//Draw collision point
+					glTranslatef(0, 0, 0.25);
+					glColor3f(1, 0, 0);
+					glutSolidSphere(contact_pts[l].r, 30, 30);
+				glPopMatrix();//Close collision point
+			glPopMatrix();//The part of the arm going back into the center
 		glPopMatrix();//Close segment
 	glPopMatrix();//Close claw
 }
@@ -332,14 +345,20 @@ void keyboard(unsigned char key, int x, int y) {
 				arm_down = false;
 			break;
 		case 'q':
-			if(claw_close == false && claw_open != true)
+			if (!claw_close){
+				if (claw_open)
+					claw_open = false;
 				claw_close = true;
+			}
 			else
 				claw_close = false;
 			break;
 		case 'e':
-			if(claw_open == false && claw_close != true)
+			if (!claw_open){
+				if (claw_close)
+					claw_close = false;
 				claw_open = true;
+			}
 			else
 				claw_open = false;
 			break;
@@ -366,19 +385,19 @@ void updateVariables(void){
 
 	//USE THESE FOR THE CONTACT SPHERE STRUCT
 
-	if(arm_up == true && robotXRot > 0)
-		robotXRot -= 0.5;
-	if(arm_down == true && robotXRot < 160)
-		robotXRot += 0.5;
+	if(arm_up == true && cableLength > 0)
+		cableLength -= 0.001;
+	if(arm_down == true && cableLength < robotArmHeight-.5)
+		cableLength += 0.001;
 
 	if(arm_left == true)
 		robotYRot += 0.5;
 	if(arm_right == true)
 		robotYRot -= 0.5;
 
-	if(claw_open == true && clawDegrees < 56)
+	if(claw_open == true && clawDegrees < 1)
 		clawDegrees += claw_velocity;
-	if(claw_close == true && clawDegrees > 0)
+	if(claw_close == true && clawDegrees > .25)
 		clawDegrees -= claw_velocity;
 
 	//*** CAMERA BOOLEANS ***//
@@ -387,9 +406,9 @@ void updateVariables(void){
 	if(camera.angle <= -360)
 		camera.angle += 360;
 	if(camera_left == true)
-		camera.angle += 0.05;
+		camera.angle += 0.01;
 	if(camera_right == true)
-		camera.angle -= 0.05;
+		camera.angle -= 0.01;
 }
 
 void updateCamera(){
